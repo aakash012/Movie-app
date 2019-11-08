@@ -4,7 +4,8 @@ import {
   API_KEY,
   API_BASE_URL,
   POSTER_SIZE,
-  BACKDROP_SIZE 
+  BACKDROP_SIZE,
+  IMAGE_BASE_URL,
 } from '../config';
 
 // import Components
@@ -20,8 +21,9 @@ import { useHomeFetch } from './hooks/useHomeFetch';
 
 const Home = () => {
   const [{ state, loading, error }, fetchMovies] = useHomeFetch();
+
   console.log(state);
-  
+
   return (
     <>
       <HeroImage />
@@ -31,7 +33,7 @@ const Home = () => {
       <Spinner />
       <LoadMoreBtn />
     </>
-  )
-}
+  );
+};
 
 export default Home;
