@@ -9,7 +9,6 @@ import {
     StyledTMDBLogo
 } from '../styles/StyledHeader';
 
-
 const Header = () => (
 <StyledHeader>
   <div className="header-content">
