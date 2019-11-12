@@ -1,88 +1,37 @@
-import React, { useState } from 'react';
-import {
-  POPULAR_BASE_URL,
-  SEARCH_BASE_URL,
-  POSTER_SIZE,
-  BACKDROP_SIZE,
-  IMAGE_BASE_URL,
-} from '../config';
+import React from 'react';
 
-// import Components
-import HeroImage from './elements/HeroImage';
-import SearchBar from './elements/SearchBar';
+// Components
+import Navigation from './elements/Navigation';
+import MovieInfo from './elements/MovieInfo';
+import MovieInfoBar from './elements/MovieInfoBar';
+import Actor from './elements/Actor';
 import Grid from './elements/Grid';
-import MovieThumb from './elements/MovieThumb';
-import LoadMoreBtn from './elements/LoadMoreBtn';
 import Spinner from './elements/Spinner';
 
-// Custom Hook
-import { useHomeFetch } from './hooks/useHomeFetch';
+import { useMovieFetch } from './hooks/useMovieFetch';
 
-import NoImage from './images/no_image.jpg';
-
-const Home = () => {
-  const [
-    {
-      state: { movies, currentPage, totalPages, heroImage },
-      loading,
-      error,
-    },
-    fetchMovies,
-  ] = useHomeFetch();
-  const [searchTerm, setSearchTerm] = useState('');
-
-  const searchMovies = search => {
-    const endpoint = search ? SEARCH_BASE_URL + search : POPULAR_BASE_URL;
-
-    setSearchTerm(search);
-    fetchMovies(endpoint);
-
-  }
-
-  const loadMoreMovies = () => {
-    const searchEndpoint = `${SEARCH_BASE_URL}${searchTerm}&page=${currentPage + 1}`;
-    const popularEndpoint = `${POPULAR_BASE_URL}&page=${currentPage + 1}`;
-
-    const endpoint = searchTerm ? searchEndpoint : popularEndpoint;
-
-    fetchMovies(endpoint);
-
-  }
+const Movie = ({ movieId }) => {
+  const [movie, loading, error] = useMovieFetch(movieId);
 
   if (error) return <div>Something went wrong ...</div>;
-  if (!movies[0]) return <Spinner />;
+  if (loading) return <Spinner />;
 
   return (
-    <>
-      {!searchTerm && (
-        <HeroImage
-          image={`${IMAGE_BASE_URL}${BACKDROP_SIZE}${heroImage.backdrop_path}`}
-          title={heroImage.original_title}
-          text={heroImage.overview}
-        />
-      )}
-      <SearchBar callback={searchMovies} />
-      <Grid header={searchTerm ? 'Search Result' : 'Popular Movies'}>
-        {movies.map(movie => (
-          <MovieThumb
-            key={movie.id}
-            clickable
-            image={
-              movie.poster_path
-                ? IMAGE_BASE_URL + POSTER_SIZE + movie.poster_path
-                : NoImage
-            }
-            movieId={movie.id}
-            movieName={movie.original_title}
-          />
-        ))}
-      </Grid>
-      {loading && <Spinner />}
-      {currentPage < totalPages && !loading && (
-        <LoadMoreBtn text="Load More" callback={loadMoreMovies} />
-      )}
-    </>
-  );
+  <>
+    <Navigation movie={movie.original_title} />
+    <MovieInfo movie={movie} />
+    <MovieInfoBar
+      time={movie.runtime}
+      budget={movie.budget}
+      revenue={movie.revenue}
+    />
+    <Grid header="Actors">
+      {movie.actors.map(actor => (
+        <Actor key={actor.credit_id} actor={actor} />
+      ))}     
+    </Grid>
+  </>
+  )
 };
 
-export default Home;
+export default Movie;
